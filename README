@@ -1,0 +1,6 @@
+A link checker/site crawler which uses multiple processes to parallelise
+and speed up link checking.
+
+This will eventually be modularised and appear on CPAN :)
+
+Adrian.
