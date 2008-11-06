@@ -1,5 +1,12 @@
 A link checker/site crawler which uses multiple processes to parallelise
-and speed up link checking.
+and speed performance (where the number of processes spawned is
+configurable).
+
+Current usages is:
+
+  perl linkCheckerP.pl <hostname>
+
+  e.g. perl linkChecker.pl http://localhost/test.html
 
 This will eventually be modularised and appear on CPAN :)
 
