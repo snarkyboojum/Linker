@@ -5,7 +5,7 @@ use HTML::LinkExtor;
 use LWP::UserAgent;
 use URI::URL;
 
-use IPC::ShareLite;
+use IPC::ShareLite qw( :lock );
 use Storable qw(freeze thaw);
 
 use Data::Dumper;
@@ -41,7 +41,6 @@ $visitStore->store( freeze([]) );
 my $agent = LWP::UserAgent->new();
 
 
-
 eval { main(); };
 
 if ($@) {
@@ -49,14 +48,14 @@ if ($@) {
 }
 
 
-# this should be atomic
+# this should be transactional 
 #
 sub storeLink {
     my ($url, $referrer) = (shift, shift);
 
     if ($linkStore->version) {
 
-        #$linkStore->lock;
+        $linkStore->lock( LOCK_EX );
         my $linkMap = thaw($linkStore->fetch);
     
         if (! exists $linkMap->{$url} ) {
@@ -76,12 +75,13 @@ sub storeLink {
         #    push($linkMap->{$url}, $referrer);
         #}
 
-        #$linkStore->unlock;
+        $linkStore->unlock();
 
     }
 }
 
-
+# N.B. store() and fetch() are atomic
+#
 sub getLinksToVisit {
     my $linksToVisit = thaw( $visitStore->fetch );
 
@@ -90,6 +90,8 @@ sub getLinksToVisit {
 }
 
 
+# N.B. store() and fetch() are atomic
+#
 sub getLinksFromStore {
     my $linkMap = thaw( $linkStore->fetch );
 
@@ -97,9 +99,11 @@ sub getLinksFromStore {
 }
 
 
+# this operation needs to be transactional
+#
 sub popVisitLink {
 
-    #$visitStore->lock;
+    $visitStore->lock( LOCK_EX );
     my $links = thaw( $visitStore->fetch );
 
     my $url;
@@ -112,7 +116,7 @@ sub popVisitLink {
         return undef;
     }
 
-    #$visitStore->unlock;
+    $visitStore->unlock();
 
     return $url;
 }
@@ -121,15 +125,13 @@ sub popVisitLink {
 sub main {
 
     my $urlRoot = $ARGV[0];
-    my @pids    = ();
     $| = 1;
 
     storeLink($urlRoot, '');
-    storeLink($urlRoot, '');
 
     while ( scalar @{getLinksToVisit()} ) {
-        
         my $numLinks = scalar @{getLinksToVisit()};
+        my @pids     = ();
         print("Links to visit: [$numLinks]\n");
 
         my $processLimit = $MAX_PROCESSES; 
@@ -169,9 +171,6 @@ sub main {
         foreach my $pid (@pids) {
             waitpid($pid, 0);
         }
-
-        # FIXME: do this more efficiently?
-        @pids = [];
     }
 
     #print Dumper( thaw($linkStore->fetch) );
