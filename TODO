@@ -1,0 +1,4 @@
+* Add redirect support
+* Don't wait for entire batch of processes to complete before forking new
+  linkchecker processes (avoiding bottleneck for long running processes - due
+  to bandwidth constraints downloading large files)
