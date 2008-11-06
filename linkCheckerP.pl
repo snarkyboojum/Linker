@@ -1,6 +1,5 @@
 # Copyright 2008 Adrian White
 #
-
 use strict;
 use warnings;
 
@@ -17,7 +16,11 @@ use Data::Dumper;
 my $VERBOSE = 0;
 
 my $MAX_PROCESSES = 16;
-my $DOMAIN_FILTER = '((http|https)://)?' . url($ARGV[0])->host;
+my $DOMAIN_FILTER = $ARGV[1];
+
+if (! defined $DOMAIN_FILTER) {
+    $DOMAIN_FILTER = '((http|https)://)?' . url($ARGV[0])->host;
+}
 
 # shared memory segment for all links
 my $linkStore = IPC::ShareLite->new(
