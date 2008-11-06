@@ -151,7 +151,7 @@ sub main {
 
         my $processLimit = $MAX_PROCESSES; 
 
-        if (scalar @{getLinksToVisit()} < $MAX_PROCESSES) {
+        if ($numLinks < $MAX_PROCESSES) {
             $processLimit = scalar @{getLinksToVisit()};
         }
 

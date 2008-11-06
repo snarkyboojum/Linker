@@ -6,7 +6,7 @@ Current usages is:
 
   perl linkCheckerP.pl <hostname>
 
-  e.g. perl linkChecker.pl http://localhost/test.html
+  e.g. perl linkCheckerP.pl http://localhost/test.html
 
 This will eventually be modularised and appear on CPAN :)
 
