@@ -55,6 +55,9 @@ $visitStore->store( freeze([]) );
 # build one user agent
 my $agent = LWP::UserAgent->new();
 
+# setting the User-agent header seems to keep some webservers happy
+$agent->agent('LinkcheckerP');
+
 
 eval { main(); };
 
